@@ -13,7 +13,7 @@ pub struct GreeterService;
 
 impl GreeterService {
     pub fn new() -> GreeterServer<Self> {
-        GreeterServer::new(Self::default())
+        GreeterServer::new(Self)
     }
 }
 
@@ -22,14 +22,13 @@ impl Greeter for GreeterService {
     async fn say_hello(&self, request: Request<HelloRequest>) -> Result<Response<HelloResponse>, Status> {
         let input = request.get_ref();
 
-        let row: (i64,) = sqlx::query_as("SELECT $1;")
-            .bind(1i64)
+        let row = sqlx::query!("SELECT $1::INTEGER as num;", 1i32)
             .fetch_one(get_db_pool())
             .await
             .unwrap();
 
         let response = HelloResponse {
-            message: format!("Hello, {} {:?}!", input.name, row.0),
+            message: format!("Hello, {} {:?}!", input.name, row.num),
         };
 
         Ok(Response::new(response))

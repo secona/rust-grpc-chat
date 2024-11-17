@@ -19,7 +19,7 @@ struct Hub {
 
 impl Hub {
     async fn broadcast(&self, msg: ChatMessage) {
-        for (_, tx) in &self.senders {
+        for tx in self.senders.values() {
             let _ = tx.send(msg.clone()).await;
         }
     }
